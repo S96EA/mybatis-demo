@@ -6,4 +6,12 @@
     <select id="selectKV" resultType="cn.s96ea.mybatis_demo.entity.KV">
     select * from KV where k = #{k}
   </select>
+
+    <select id="selectByV" resultType="cn.s96ea.mybatis_demo.entity.KV">
+        select * from KV where v = #{v}
+    </select>
+    
+    <insert id="insert" parameterType="cn.s96ea.mybatis_demo.entity.KV">
+        insert into KV(k, v) values (#{k}, #{v})
+    </insert>
 </mapper>

@@ -1,5 +1,6 @@
 package cn.s96ea.mybatis_demo;
 
+import cn.s96ea.mybatis_demo.entity.KV;
 import cn.s96ea.mybatis_demo.mapper.KVMapper;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -79,5 +80,38 @@ public class Main {
         try (var session = sqlSessionFactory.openSession()) {
             System.out.println(session.getMapper(KVMapper.class).selectKV("A1"));
         }
+    }
+
+
+    @Test
+    public void queryList() throws Exception {
+        String resource = "mybatis-config.xml";
+        InputStream inputStream = Resources.getResourceAsStream(resource);
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+
+        try (var session = sqlSessionFactory.openSession()) {
+            System.out.println(session.getMapper(KVMapper.class).selectByV(1));
+        }
+
+    }
+
+    @Test
+    public void insert() throws Exception {
+        String resource = "mybatis-config.xml";
+        InputStream inputStream = Resources.getResourceAsStream(resource);
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+
+        /*
+         * 默认的 openSession() 方法没有参数，它会创建具备如下特性的 SqlSession：
+         *
+         * 事务作用域将会开启（也就是不自动提交）。
+         * 将由当前环境配置的 DataSource 实例中获取 Connection 对象。
+         * 事务隔离级别将会使用驱动或数据源的默认设置。
+         * 预处理语句不会被复用，也不会批量处理更新。
+         */
+        try (var session = sqlSessionFactory.openSession(true)) {
+            session.getMapper(KVMapper.class).insert(new KV("A" + System.currentTimeMillis(), 1));
+        }
+
     }
 }
