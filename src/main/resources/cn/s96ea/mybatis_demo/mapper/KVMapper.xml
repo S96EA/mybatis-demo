@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.s96ea.mybatis_demo.mapper.KVMapper">
+    <select id="selectKV" resultType="cn.s96ea.mybatis_demo.entity.KV">
+    select * from KV where k = #{k}
+  </select>
+</mapper>
