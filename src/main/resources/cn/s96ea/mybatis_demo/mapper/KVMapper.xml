@@ -3,15 +3,39 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.s96ea.mybatis_demo.mapper.KVMapper">
+    <resultMap id="kvResultMap" type="cn.s96ea.mybatis_demo.entity.KV">
+        <id property="k" column="k"/>
+        <result property="v" column="v"/>
+    </resultMap>
+    <resultMap id="kvListResultMap" type="cn.s96ea.mybatis_demo.entity.KVList">
+        <id property="id" column="id"/>
+        <association property="value" javaType="cn.s96ea.mybatis_demo.entity.Value">
+            <result property="val" column="val"/>
+        </association>
+        <collection property="kvList" ofType="cn.s96ea.mybatis_demo.entity.KV">
+            <id property="k" column="k"/>
+            <result property="v" column="v"/>
+        </collection>
+    </resultMap>
+
     <select id="selectKV" resultType="cn.s96ea.mybatis_demo.entity.KV">
-    select * from KV where k = #{k}
-  </select>
+        select * from KV where k = #{k}
+    </select>
+
+    <select id="selectKVByResultMap" resultMap="kvResultMap">
+        select * from KV where k = #{k}
+    </select>
 
     <select id="selectByV" resultType="cn.s96ea.mybatis_demo.entity.KV">
         select * from KV where v = #{v}
     </select>
-    
+
     <insert id="insert" parameterType="cn.s96ea.mybatis_demo.entity.KV">
         insert into KV(k, v) values (#{k}, #{v})
     </insert>
+
+
+    <select id="selectKVListByResultMap" resultMap="kvListResultMap">
+        select 1 as id, 99 as val, k, v from KV;
+    </select>
 </mapper>

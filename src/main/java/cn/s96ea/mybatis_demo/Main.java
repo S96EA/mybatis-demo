@@ -96,6 +96,28 @@ public class Main {
     }
 
     @Test
+    public void selectByResultMap() throws Exception {
+        String resource = "mybatis-config.xml";
+        InputStream inputStream = Resources.getResourceAsStream(resource);
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+
+        try (var session = sqlSessionFactory.openSession()) {
+            System.out.println(session.getMapper(KVMapper.class).selectKVByResultMap("A1"));
+        }
+    }
+
+    @Test
+    public void selectByResultMapAdvanced() throws Exception {
+        String resource = "mybatis-config.xml";
+        InputStream inputStream = Resources.getResourceAsStream(resource);
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+
+        try (var session = sqlSessionFactory.openSession()) {
+            System.out.println(session.getMapper(KVMapper.class).selectKVListByResultMap());
+        }
+    }
+
+    @Test
     public void insert() throws Exception {
         String resource = "mybatis-config.xml";
         InputStream inputStream = Resources.getResourceAsStream(resource);
