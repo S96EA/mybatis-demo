@@ -22,5 +22,6 @@
     </environments>
     <mappers>
         <mapper resource="cn/s96ea/mybatis_demo/mapper/KVMapper.xml"/>
+        <mapper resource="cn/s96ea/mybatis_demo/mapper/KVAuditMapper.xml"/>
     </mappers>
 </configuration>

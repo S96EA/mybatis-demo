@@ -1,6 +1,8 @@
 package cn.s96ea.mybatis_demo;
 
 import cn.s96ea.mybatis_demo.entity.KV;
+import cn.s96ea.mybatis_demo.entity.KVAudit;
+import cn.s96ea.mybatis_demo.mapper.KVAuditMapper;
 import cn.s96ea.mybatis_demo.mapper.KVMapper;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -11,11 +13,28 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.transaction.TransactionFactory;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 
 public class Main {
+    static KVMapper kvMapper;
+    static KVAuditMapper kvAuditMapper;
+
+    @BeforeAll
+    public static void initMapper() throws IOException {
+        String resource = "mybatis-config.xml";
+        InputStream inputStream = Resources.getResourceAsStream(resource);
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+        var session = sqlSessionFactory.openSession(true);
+        kvMapper = session.getMapper(KVMapper.class);
+        kvAuditMapper = session.getMapper(KVAuditMapper.class);
+    }
+
+
     @Test
     public void getSqlSessionFactoryByXML() throws Exception {
         String resource = "mybatis-config.xml";
@@ -51,13 +70,7 @@ public class Main {
 
     @Test
     public void queryByAnnotation() throws Exception {
-        String resource = "mybatis-config.xml";
-        InputStream inputStream = Resources.getResourceAsStream(resource);
-        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
-        try (var session = sqlSessionFactory.openSession()) {
-            System.out.println(session.getMapper(KVMapper.class).selectKVByK("A1"));
-        }
-
+        System.out.println(kvMapper.selectKVByK("aa"));
     }
 
     @Test
@@ -134,6 +147,55 @@ public class Main {
         try (var session = sqlSessionFactory.openSession(true)) {
             session.getMapper(KVMapper.class).insert(new KV("A" + System.currentTimeMillis(), 1));
         }
-
     }
+
+    @Test
+    public void testInsertKVAudit() {
+        kvAuditMapper.save(new KVAudit(null, "K1" + System.currentTimeMillis(), "v1", new Date(), new Date(), false, 0L));
+    }
+
+    @Test
+    public void testFindByKey() {
+        String key = "K1" + System.currentTimeMillis();
+        var kv = new KVAudit(null, key, "v1", new Date(), new Date(), false, 0L);
+        kvAuditMapper.save(kv);
+        System.out.println(kv.getId());
+        System.out.println(kvAuditMapper.findByKey(key));
+    }
+
+    @Test
+    public void testDeleteKVAudit() {
+        String key = "K1" + System.currentTimeMillis();
+        kvAuditMapper.save(new KVAudit(null, key, "v1", new Date(), new Date(), false, 0L));
+        kvAuditMapper.deleteByKey(key);
+    }
+
+    @Test
+    public void testUpdsert() {
+        String key = "K1" + System.currentTimeMillis();
+        kvAuditMapper.save(new KVAudit(null, key, "v1", new Date(), new Date(), false, 0L));
+        kvAuditMapper.deleteByKey(key);
+
+        var kv = kvAuditMapper.findByKey(key);
+        System.out.println(kv);
+
+        kv = new KVAudit();
+        kv.setK(key+System.currentTimeMillis());
+        System.out.println(kvAuditMapper.upsert(kv));
+    }
+
+    @Test
+    public void testVersion() {
+        String key = "K1" + System.currentTimeMillis();
+        kvAuditMapper.save(new KVAudit(null, key, "v1", new Date(), new Date(), false, 0L));
+
+        var kv = kvAuditMapper.findByKey(key);
+
+        kv.setV("1111");
+        System.out.println(kvAuditMapper.upsert(kv));
+
+        kv.setV("2222");
+        System.out.println(kvAuditMapper.upsert(kv));
+    }
+
 }

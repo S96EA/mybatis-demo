@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.s96ea.mybatis_demo.mapper.KVAuditMapper">
+    <resultMap id="kvAuditResultMap" type="cn.s96ea.mybatis_demo.entity.KVAudit">
+        <id property="id" column="id"/>
+        <result property="k" column="k"/>
+        <result property="v" column="v"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="version" column="version"/>
+    </resultMap>
+    <insert id="save" parameterType="cn.s96ea.mybatis_demo.entity.KVAudit" keyProperty="id" useGeneratedKeys="true">
+
+
+
+                                                                insert into KVAudit(id, k, v, create_time, update_time, is_deleted, version)
+                                                                values(#{id}, #{k}, #{v}, #{createTime}, #{updateTime}, #{isDeleted}, #{version})
+
+
+
+
+    </insert>
+    <delete id="deleteByKey">
+
+
+
+
+                                        update KVAudit set is_deleted = true where k = #{key}
+
+
+
+
+    </delete>
+    <select id="findByKey" resultMap="kvAuditResultMap">
+
+
+
+
+
+
+                                                        select * from KVAudit where k=#{key} AND is_deleted = false;
+
+
+
+
+
+
+    </select>
+    <update id="upsert">
+        <selectKey keyProperty="id" resultType="Long">
+            select id from KVAudit where k=#{k};
+        </selectKey>
+        <if test="id != null">
+            update KVAudit
+            <set>
+                <if test="v != null">
+                    v=#{v},
+                </if>
+                <if test="updateTime != null">
+                    update_time=#{updateTime},
+                </if>
+                is_deleted=false, version=#{version}+1
+            </set>
+            where k=#{k} AND version=#{version}
+        </if>
+        <if test="id == null">
+            insert into KVAudit(id, k, v, create_time, update_time, is_deleted, version)
+            values(#{id}, #{k}, #{v}, #{createTime}, #{updateTime}, #{isDeleted}, #{version})
+        </if>
+    </update>
+</mapper>
